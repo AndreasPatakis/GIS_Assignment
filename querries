@@ -1,0 +1,55 @@
+--Create vessels_points_jan
+
+drop table if exists vessels_points_jan;
+create table vessels_points_jan(
+	timest double precision,
+	dates timestamp,
+	typee integer,
+	mmsi integer,
+	status integer,
+	heading integer,
+	turn double precision,
+	speed double precision,
+	course double precision,
+	geom geometry(point, 4326)
+);
+
+
+insert into vessels_points_jan(timest, typee, mmsi, status, heading,turn,speed,course,geom)
+select tt,typee,mmsi,status, heading,turn,speed,course,geom
+from kinematic_data_jan
+
+update vessels_points_jan 
+set dates = to_timestamp(timest/1000)
+
+
+--Create R-Tree indexes for our table
+
+create index idx_vessels_points_jan on vessels_points_jan using gist(geom);
+set enable_seqscan = true;
+set enable_seqscan = false;
+
+
+
+--Greece
+select st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000)
+
+--In Greece points
+select st_intersection(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000), st_transform(geom,2100))
+from vessels_points_jan
+
+-- Get Num of points left
+select count(*)
+from (select st_contains(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000), st_transform(geom,2100)) as res
+from vessels_points_jan) as k
+where k.res = true
+
+--Delete all the points outside of Greece
+delete from vessels_points_jan
+where st_contains(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000), st_transform(geom,2100)) = false
+
+--Delete all data inside land of Greece
+delete from vessels_points_jan as v
+using periphereies as p
+where st_contains(p.geom, st_transform(v.geom,2100)) = true
+
