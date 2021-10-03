@@ -4,15 +4,13 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="gis_lab",
-    user="postgres",
-    password="andreasmc10")
+from config import DB_CONFIG
+
+conn = psycopg2.connect(**DB_CONFIG)
 # To fetch (all) the GPS points
 print(conn)
 
-traj_sql = 'SELECT * FROM vessels_points_jan limit 50000;'
+traj_sql = 'SELECT * FROM vessels_points_jan limit 50000'
 
 df = gpd.GeoDataFrame.from_postgis(traj_sql, conn, geom_col='geom')
 
@@ -32,9 +30,7 @@ for vessel in mmsi:
 for stamps in vessel_stamps:
     max_i = len(stamps.dates) -1
     for i,stamp in enumerate(stamps.dates):
-        if(max_i < 1):
-            pass
-        else:
+        if(max_i >= 1):
             days_diff = (stamps.iloc[i].dates - stamps.iloc[i+1].dates).days
             if(days_diff == 0):
                 sec = (stamps.iloc[i].dates - stamps.iloc[i+1].dates).seconds
@@ -43,10 +39,8 @@ for stamps in vessel_stamps:
                     less_than[49] +=1
                 else:
                     less_than[pos] +=1
-            else:
-                pass
-        if(i == max_i -1):
-            break;
+        if(i == max_i - 1):
+            break
 
 
 #PLOT
@@ -59,7 +53,7 @@ for i in range(0,51):
 
 plt.hist(less_than,log=True ,bins = x_axis, edgecolor = 'white')
 plt.ylabel('Records')
-plt.xlabel('Seconds');
+plt.xlabel('Seconds')
 plt.xticks(np.arange(0,255,5))
 plt.show()
 

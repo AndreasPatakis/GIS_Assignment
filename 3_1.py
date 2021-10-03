@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point
 
+from config import DB_CONFIG
 
 #We choose to define a trajectory, in it's general form, by having the hypothesis
 #that a journey of a vessel starts and stops in the ports. Then each of these trajectories
@@ -14,11 +15,7 @@ from shapely.geometry import Point
 
 #p1: lat:37.9474889 lon:23.6363779
 #select st_buffer(st_geomfromtext('point(23.6363779 37.9474889)',4326),0.02)
-conn = psycopg2.connect(
-    host="localhost",
-    database="gis_lab",
-    user="postgres",
-    password="andreasmc10")
+conn = psycopg2.connect(**DB_CONFIG)
 
 print(conn)
 

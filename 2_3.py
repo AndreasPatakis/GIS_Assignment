@@ -4,11 +4,9 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="gis_lab",
-    user="postgres",
-    password="andreasmc10")
+from config import DB_CONFIG
+
+conn = psycopg2.connect(**DB_CONFIG)
 
 print(conn)
 
@@ -39,7 +37,7 @@ for i in range(31):
 
 plt.hist(speed_bins,bins = x_axis,log=True , edgecolor = 'white')
 plt.ylabel('Records')
-plt.xlabel('km/h speed');
+plt.xlabel('km/h speed')
 plt.title('Statistics for speed of vessels in 2.000.000 records')
 plt.xticks(np.arange(0,31,1))
 plt.show()
