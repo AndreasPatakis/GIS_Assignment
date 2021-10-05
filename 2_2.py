@@ -1,56 +1,45 @@
 import psycopg2
-import psycopg2.extras
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 
 from config import DB_CONFIG
 
+NUM_OF_VESSELS = 50000
+
 conn = psycopg2.connect(**DB_CONFIG)
-# To fetch (all) the GPS points
-print(conn)
+traj_sql = f'SELECT mmsi, dates, geom FROM vessels_points_jan ORDER BY mmsi DESC, dates DESC LIMIT {NUM_OF_VESSELS}'
+df = gpd.GeoDataFrame.from_postgis(traj_sql, conn, geom_col='geom').drop('geom', axis=1)
 
-traj_sql = 'SELECT * FROM vessels_points_jan limit 50000'
-
-df = gpd.GeoDataFrame.from_postgis(traj_sql, conn, geom_col='geom')
-
-timest_mmsi = df[['dates','mmsi']]
-timest_mmsi = timest_mmsi.sort_values(by=['mmsi','dates'], ascending = [False,False])
-mmsi = timest_mmsi.mmsi.unique()
-
-one_vessel = timest_mmsi[timest_mmsi['mmsi'] == 249226000]
-
+vessel_stamps = [df[df['mmsi'] == vessel] for vessel in df.mmsi.unique()]
 
 less_than = [0]*50
 
-vessel_stamps = []
-for vessel in mmsi:
-    vessel_stamps.append(timest_mmsi[timest_mmsi['mmsi'] == vessel])
-
+# stamps: mmsi | date pairs for each vestel sorted by date
 for stamps in vessel_stamps:
-    max_i = len(stamps.dates) -1
-    for i,stamp in enumerate(stamps.dates):
-        if(max_i >= 1):
-            days_diff = (stamps.iloc[i].dates - stamps.iloc[i+1].dates).days
-            if(days_diff == 0):
-                sec = (stamps.iloc[i].dates - stamps.iloc[i+1].dates).seconds
-                pos = int(sec/5)
-                if(pos>=49):
-                    less_than[49] +=1
-                else:
-                    less_than[pos] +=1
-        if(i == max_i - 1):
-            break
+    for i in range(len(stamps.dates) - 1):
+        stamp = stamps.iloc[i].dates
+        prev_stamp = stamps.iloc[i+1].dates
+        days_diff = (stamp - prev_stamp).days
 
+        # Same day
+        if(days_diff == 0):
+            sec = (stamp - prev_stamp).seconds
+            pos = int(sec/5)
+
+            if(pos>=49):
+                pos = 49
+
+            less_than[pos] +=1
+
+# TODO Calculate average time difference (sample rate) per ship
 
 #PLOT
 x_axis = []
 for i in range(0,51):
     x_axis.append(i*5)
 
-
-
-
+plt.figure('Sample rate per vestel')
 plt.hist(less_than,log=True ,bins = x_axis, edgecolor = 'white')
 plt.ylabel('Records')
 plt.xlabel('Seconds')
