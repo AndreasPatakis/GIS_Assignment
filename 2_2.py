@@ -13,7 +13,7 @@ df = gpd.GeoDataFrame.from_postgis(traj_sql, conn, geom_col='geom').drop('geom',
 
 vessel_stamps = [df[df['mmsi'] == vessel] for vessel in df.mmsi.unique()]
 
-less_than = [0]*50
+less_than = [0] * 50
 
 # stamps: mmsi | date pairs for each vestel sorted by date
 for stamps in vessel_stamps:
@@ -22,7 +22,7 @@ for stamps in vessel_stamps:
         prev_stamp = stamps.iloc[i+1].dates
         days_diff = (stamp - prev_stamp).days
 
-        # Same day
+        # Less than a day difference
         if(days_diff == 0):
             sec = (stamp - prev_stamp).seconds
             pos = int(sec/5)
