@@ -38,6 +38,7 @@ select st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326)
 select st_intersection(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000), st_transform(geom,2100))
 from vessels_points_jan
 
+
 -- Get Num of points left
 select count(*)
 from (select st_contains(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983810)',4326),2100),300000), st_transform(geom,2100)) as res
@@ -52,4 +53,10 @@ where st_contains(st_expand(st_transform(st_geomfromtext('point(23.727539 37.983
 delete from vessels_points_jan as v
 using periphereies as p
 where st_contains(p.geom, st_transform(v.geom,2100)) = true
+
+
+-Total num of points: 5695691
+-Num of points inside Greece: 5694562
+-Num of points outside of Greece(deleted): 1129
+-Num of points inside the mainland of Greece(deleted): 
 

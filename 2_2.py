@@ -15,7 +15,7 @@ vessel_stamps = [df[df['mmsi'] == vessel] for vessel in df.mmsi.unique()]
 
 less_than = [0] * 50
 
-# stamps: mmsi | date pairs for each vestel sorted by date
+# stamps: mmsi | date pairs for each vessel sorted by date
 for stamps in vessel_stamps:
     for i in range(len(stamps.dates) - 1):
         stamp = stamps.iloc[i].dates
@@ -39,7 +39,7 @@ x_axis = []
 for i in range(0,51):
     x_axis.append(i*5)
 
-plt.figure('Sample rate per vestel')
+plt.figure('Sample rate per vessel')
 plt.hist(less_than,log=True ,bins = x_axis, edgecolor = 'white')
 plt.ylabel('Records')
 plt.xlabel('Seconds')
