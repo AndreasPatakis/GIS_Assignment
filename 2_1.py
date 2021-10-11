@@ -11,7 +11,7 @@ conn = psycopg2.connect(**DB_CONFIG)
 if conn.closed == 0:
     print("Connected to DB")
 
-all_points_sql = 'SELECT  FROM vessels_points_jan limit {}'.format(RECORDS_LIMIT)
+all_points_sql = 'SELECT * FROM vessels_points_jan limit {}'.format(RECORDS_LIMIT)
 
 all_points_gdf =  gpd.GeoDataFrame.from_postgis(all_points_sql, conn, geom_col='geom')
 
