@@ -58,5 +58,5 @@ where st_contains(p.geom, st_transform(v.geom,2100)) = true
 -Total num of points: 5695691
 -Num of points inside Greece: 5694562
 -Num of points outside of Greece(deleted): 1129
--Num of points inside the mainland of Greece(deleted): 
+-Num of points inside the mainland of Greece(deleted): -306000
 
